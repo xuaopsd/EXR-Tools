@@ -1,6 +1,10 @@
 import os
 import OpenEXR
 import math
+from tqdm import tqdm
+from colorama import init, Fore
+
+init(autoreset=True)
 
 # Input folder path and create a list of the files
 inputFolderPath = input("Type the path to the folder containing the files...\n")
@@ -13,7 +17,7 @@ suspiciousFiles = []
 filesSize = 0.0
 
 # Check if the files are valid EXR files and calculate the total size
-for i in filesList:
+for i in tqdm(filesList, desc="Analyzing files", unit="file"):
     try:
         exr = OpenEXR.InputFile(os.path.join(inputFolderPath, i))
         filesSize += os.path.getsize(os.path.join(inputFolderPath, i))
@@ -36,7 +40,7 @@ def getReadableAverageSize(size):
 window = 10
 
 # Check for suspicious files based on the average size of the neighbors
-for i in range(len(filesList)):
+for i in tqdm(range(len(filesList)), desc="Detecting Suspicious files", unit="file"):
     neighborSizes = [
         os.path.getsize(os.path.join(inputFolderPath, filesList[j]))
         for j in range(max(0, i - window), min(len(filesList), i + window + 1)) if j != i
@@ -49,19 +53,22 @@ for i in range(len(filesList)):
         suspiciousFiles = list(set(suspiciousFiles) - set(invalidFiles))
 
 # Print the results
-print("Analyse complete.")
-print(f"Total files: {len(filesList)}")
-print(f"Valid files: {len(filesList) - len(invalidFiles)}")
-if len(invalidFiles) > 0:
-    print("Invalid files:")
-    for i in invalidFiles:
-        print(f" - {i}")
-if len(suspiciousFiles) > 0:
-    print("Suspicious files:")
-    for i in suspiciousFiles:
-        print(f" - {i}")
+print(Fore.WHITE + "Analysis complete.")
+print(Fore.WHITE + f"Total files: {len(filesList)}")
+print(Fore.GREEN + f"Valid files: {len(filesList) - len(invalidFiles)}")
 
-if len(suspiciousFiles) and len(invalidFiles) == 0:
-    print("No problems found.")
-print(f"Average size: {getReadableAverageSize(filesSize)[0]} {getReadableAverageSize(filesSize)[1]}")
+if len(invalidFiles) > 0:
+    print(Fore.RED + "Invalid files:")
+    for i in invalidFiles:
+        print(Fore.RED + f" - {i}")
+
+if len(suspiciousFiles) > 0:
+    print(Fore.YELLOW + "Suspicious files:")
+    for i in suspiciousFiles:
+        print(Fore.YELLOW + f" - {i}")
+
+if len(suspiciousFiles) == 0 and len(invalidFiles) == 0:
+    print(Fore.GREEN + "No problems found.")
+
+print(Fore.CYAN + f"Average size: {getReadableAverageSize(filesSize)[0]} {getReadableAverageSize(filesSize)[1]}")
 
