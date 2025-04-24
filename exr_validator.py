@@ -49,7 +49,7 @@ for i in range(len(filesList)):
         suspiciousFiles = list(set(suspiciousFiles) - set(invalidFiles))
 
 # Print the results
-print("Analizyse complete.")
+print("Analyse complete.")
 print(f"Total files: {len(filesList)}")
 print(f"Valid files: {len(filesList) - len(invalidFiles)}")
 if len(invalidFiles) > 0:
