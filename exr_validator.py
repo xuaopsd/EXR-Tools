@@ -2,14 +2,17 @@ import os
 import OpenEXR
 import math
 
+# Input folder path and create a list of the files
 inputFolderPath = input("Type the path to the folder containing the files...\n")
 filesList = sorted(os.listdir(inputFolderPath))
 
+# Creating the variables to store the results
 validFiles = 0
 invalidFiles = []
 suspiciousFiles = []
 filesSize = 0.0
 
+# Check if the files are valid EXR files and calculate the total size
 for i in filesList:
     try:
         exr = OpenEXR.InputFile(os.path.join(inputFolderPath, i))
@@ -18,6 +21,7 @@ for i in filesList:
         invalidFiles.append(i)
         continue
 
+# Create a function to get the average size of the files in a readable format
 def getReadableAverageSize(size):
     if size == 0 or not filesList:
         return "0B"
@@ -28,8 +32,10 @@ def getReadableAverageSize(size):
     s = round(avgSize / p, 2)
     return [s, sizeName[i]]
 
+# Defines the window neighbour numbers to check for suspicious files
 window = 10
 
+# Check for suspicious files based on the average size of the neighbors
 for i in range(len(filesList)):
     neighborSizes = [
         os.path.getsize(os.path.join(inputFolderPath, filesList[j]))
@@ -42,7 +48,7 @@ for i in range(len(filesList)):
         suspiciousFiles.append(filesList[i])
         suspiciousFiles = list(set(suspiciousFiles) - set(invalidFiles))
 
-
+# Print the results
 print("Analizyse complete.")
 print(f"Total files: {len(filesList)}")
 print(f"Valid files: {len(filesList) - len(invalidFiles)}")
